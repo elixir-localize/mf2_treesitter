@@ -2,6 +2,33 @@
 
 [tree-sitter](https://tree-sitter.github.io/) grammar for ICU [MessageFormat 2.0](https://unicode.org/reports/tr35/tr35-messageFormat.html) (MF2).
 
+## Status
+
+* Passes the official MF2 WG syntax conformance suite: 247/247 (114 valid, 133 invalid-input tests). The runner lives at `test/conformance/runner.js` and is part of `npm test`.
+* Full set of editor queries: highlights, locals, folds, indents, injections, tags.
+* Native Node binding + WASM both ship.
+
+## Regenerating after a grammar edit
+
+```bash
+npm install            # once, pulls tree-sitter-cli into node_modules
+./scripts/build.sh     # regenerate src/ + wasm/ + run tests
+```
+
+Needs [emscripten](https://emscripten.org/) on `PATH` for the WASM build, OR a running Docker / Podman (tree-sitter CLI can run emscripten inside a container as a fallback — `open -a Docker` on macOS if Docker Desktop is installed but not running).
+
+After a regeneration, **both** the source changes AND the regenerated `src/` + `wasm/` artefacts need to be committed. Downstream consumers vendor the checked-in artefacts; they do not regenerate on their own builds.
+
+## Local development
+
+```bash
+npm install                                   # tree-sitter-cli into node_modules
+./node_modules/.bin/tree-sitter test          # run corpus tests
+./node_modules/.bin/tree-sitter parse FILE    # parse a file and print the tree
+```
+
+The test corpus under `test/corpus/` is the same format used by the tree-sitter CLI. Add new tests by appending to the existing `.txt` files (see the format in any of them — `====== name ======` blocks).
+
 ## What is in this repo
 
 ```
@@ -43,33 +70,6 @@ mf2_treesitter/
 ├── LICENSE                 # Apache-2.0
 └── README.md
 ```
-
-## Status
-
-* Passes the official MF2 WG syntax conformance suite: 247/247 (114 valid, 133 invalid-input tests). The runner lives at `test/conformance/runner.js` and is part of `npm test`.
-* Full set of editor queries: highlights, locals, folds, indents, injections, tags.
-* Native Node binding + WASM both ship.
-
-## Regenerating after a grammar edit
-
-```bash
-npm install            # once, pulls tree-sitter-cli into node_modules
-./scripts/build.sh     # regenerate src/ + wasm/ + run tests
-```
-
-Needs [emscripten](https://emscripten.org/) on `PATH` for the WASM build, OR a running Docker / Podman (tree-sitter CLI can run emscripten inside a container as a fallback — `open -a Docker` on macOS if Docker Desktop is installed but not running).
-
-After a regeneration, **both** the source changes AND the regenerated `src/` + `wasm/` artefacts need to be committed. Downstream consumers vendor the checked-in artefacts; they do not regenerate on their own builds.
-
-## Local development
-
-```bash
-npm install                                   # tree-sitter-cli into node_modules
-./node_modules/.bin/tree-sitter test          # run corpus tests
-./node_modules/.bin/tree-sitter parse FILE    # parse a file and print the tree
-```
-
-The test corpus under `test/corpus/` is the same format used by the tree-sitter CLI. Add new tests by appending to the existing `.txt` files (see the format in any of them — `====== name ======` blocks).
 
 ## Licence
 
