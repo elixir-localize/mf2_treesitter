@@ -43,14 +43,17 @@ jobs:
             arch: arm64
             runner: ubuntu-24.04-arm
           - os: darwin
-            arch: x64
-            runner: macos-13
-          - os: darwin
             arch: arm64
             runner: macos-latest
           - os: win32
             arch: x64
             runner: windows-latest
+        # darwin x64 (Intel Mac) was in the matrix but GitHub's
+        # macos-13 runner pool is so constrained that jobs sit
+        # queued for 24h+. Apple has been pushing off Intel since
+        # 2020; the Intel-Mac install base for a tree-sitter grammar
+        # is negligible. Intel users fall back to node-gyp-build
+        # compiling at install time, same as any unlisted platform.
     steps:
       - uses: actions/checkout@v4
 
