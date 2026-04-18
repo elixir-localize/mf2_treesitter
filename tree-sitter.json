@@ -16,7 +16,7 @@
     "license": "Apache-2.0",
     "description": "tree-sitter grammar for ICU MessageFormat 2.0 (MF2) messages",
     "links": {
-      "repository": "https://github.com/elixir-localize/localize.git"
+      "repository": "https://github.com/elixir-localize/mf2_treesitter.git"
     }
   },
   "bindings": {
