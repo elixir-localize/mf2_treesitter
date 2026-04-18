@@ -20,9 +20,13 @@ on:
 #      source, so end users on any of the built platforms skip the
 #      node-gyp step entirely.
 #
-# Requires secrets:
-#   - NPM_TOKEN: npm automation token with publish rights to
-#     `tree-sitter-mf2`.
+# Authentication uses npm's Trusted Publishing (OIDC) — no static
+# token, no rotation. This workflow authenticates to npm by
+# exchanging GitHub's OIDC identity token at publish time; npm
+# trusts the exchange because `elixir-localize/mf2_treesitter`'s
+# `release.yml` workflow is registered as a trusted publisher for
+# the `tree-sitter-mf2` package on the npm side (see CONTRIBUTING.md
+# for the one-time setup). Requires `id-token: write` permission.
 
 jobs:
   prebuild:
@@ -74,13 +78,27 @@ jobs:
     # Only publish on tag pushes. `workflow_dispatch` runs the
     # prebuild matrix for validation but stops short of publishing.
     if: startsWith(github.ref, 'refs/tags/v')
+    # Trusted Publishing requires OIDC: the workflow asks GitHub for
+    # an identity token and npm verifies it against the trusted-
+    # publisher config attached to the package. `contents: read` is
+    # the default but we declare it explicitly since setting any
+    # permission shrinks the default set.
+    permissions:
+      id-token: write
+      contents: read
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           registry-url: 'https://registry.npmjs.org'
+
+      # Trusted Publishing needs npm >= 11.5.1. Ship-with-Node versions
+      # lag behind; upgrade explicitly so this doesn't silently break
+      # when runners roll forward.
+      - name: Upgrade npm
+        run: npm install -g npm@latest
 
       - name: Install dependencies
         run: npm ci
@@ -101,8 +119,11 @@ jobs:
           ls -R prebuilds/
 
       - name: Publish to npm
-        # --provenance attaches a signed build-provenance attestation
-        # visible on the npm package page.
+        # OIDC auth is implicit — npm CLI reads the GitHub identity
+        # token via ACTIONS_ID_TOKEN_REQUEST_* env vars that the
+        # runner sets automatically when `id-token: write` is in
+        # effect. No NODE_AUTH_TOKEN needed.
+        #
+        # --provenance attaches a signed SLSA build-provenance
+        # attestation visible as a badge on the npm package page.
         run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -30,6 +30,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # Fails CI on any high- or critical-severity vulnerability in
+      # the dep tree. Lower-severity advisories flow through
+      # Dependabot's weekly PRs instead. Runs on ubuntu only to avoid
+      # duplicate failures across the matrix.
+      - name: Security audit
+        if: matrix.os == 'ubuntu-latest'
+        run: npm audit --audit-level=high
+
       - name: tree-sitter test (corpus)
         run: npm run test:corpus
 

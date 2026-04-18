@@ -99,7 +99,24 @@ If you must rename:
 
 Only repo maintainers publish. Publishing is driven by the `release.yml` GitHub Actions workflow: pushing a `v*` tag triggers a multi-OS prebuilt-binary matrix build, then a final job that downloads every prebuild, stages them under `prebuilds/`, and runs `npm publish --provenance`. End users on Linux x64/arm64, macOS x64/arm64, or Windows x64 skip node-gyp entirely at install time because `node-gyp-build` finds the matching prebuild.
 
-Flow:
+### One-time trusted-publisher setup on npm
+
+This repo authenticates to npm via **Trusted Publishing** (OIDC) rather than a stored token. Before the first publish, a maintainer with npm publish rights configures the trust relationship once:
+
+1. Sign in to [npmjs.com](https://www.npmjs.com); keep 2FA enabled.
+2. Go to `https://www.npmjs.com/settings/<username>/packages` → **Trusted publishers** → **Add trusted publisher**.
+3. Fill in:
+   - Publisher: **GitHub Actions**
+   - Organization or user: `elixir-localize`
+   - Repository: `mf2_treesitter`
+   - Workflow filename: `release.yml`
+   - Environment: *(leave blank)*
+   - Package name: `tree-sitter-mf2`
+4. Save. npm reserves the package name against this workflow.
+
+No `NPM_TOKEN` secret is required. The workflow authenticates via the short-lived OIDC identity token GitHub issues to the job at run time.
+
+### Release flow
 
 ```bash
 # 1. Verify CI is green on main.
@@ -109,7 +126,7 @@ npm version patch   # or minor, or major. Creates a commit + git tag.
 git push --follow-tags
 ```
 
-The workflow requires an `NPM_TOKEN` repository secret with publish rights. To run the prebuild matrix without publishing (for validation), trigger `release.yml` via `workflow_dispatch` — it runs the prebuild jobs and skips the publish job.
+To run the prebuild matrix without publishing (for validation), trigger `release.yml` via `workflow_dispatch` — it runs the prebuild jobs and skips the publish job.
 
 The `prepublishOnly` npm script also runs `tree-sitter generate` + `npm run build-wasm` + `npm test` as a local safety net for anyone running `npm publish` manually.
 

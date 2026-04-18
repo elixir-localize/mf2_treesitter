@@ -1,20 +1,6 @@
-# mf2_treesitter
+# Tree-sitter-mf2
 
-[tree-sitter](https://tree-sitter.github.io/) grammar for ICU [MessageFormat 2.0](https://unicode.org/reports/tr35/tr35-messageFormat.html) (MF2). This repo is the **single canonical source** for the grammar and its generated artefacts.
-
-If you are here to:
-
-* **highlight MF2 in a web page** → use [`mf2_wasm_editor`](https://github.com/elixir-localize/mf2_wasm_editor) (ships the `.wasm` from this repo + a Phoenix LiveView hook).
-* **parse MF2 server-side in Elixir** → use [`localize_mf2_treesitter`](https://github.com/elixir-localize/localize_mf2_treesitter) (NIF over the parser from this repo).
-* **add MF2 support to your editor** (Zed, Helix, Neovim, Emacs, Vim, VS Code) → use the editor-specific package in [`mf2_editor_extensions`](https://github.com/elixir-localize/mf2_editor_extensions) which references this grammar.
-* **consume the raw grammar via npm** (e.g. `web-tree-sitter` in your own JS app) → `npm i tree-sitter-mf2`.
-
-Only come here directly if you are:
-
-* editing the grammar (`grammar.js`).
-* regenerating the parser (`scripts/build.sh`).
-* publishing a new version.
-* adding a new downstream consumer.
+[tree-sitter](https://tree-sitter.github.io/) grammar for ICU [MessageFormat 2.0](https://unicode.org/reports/tr35/tr35-messageFormat.html) (MF2).
 
 ## What is in this repo
 
@@ -58,46 +44,11 @@ mf2_treesitter/
 └── README.md
 ```
 
-**`grammar.js` is the only hand-edited source file.** Everything under `src/` and `wasm/` is output of the build step; `test/conformance/*.json` is vendored from upstream.
-
 ## Status
 
-* **Passes the official MF2 WG syntax conformance suite: 247/247** (114 valid, 133 invalid-input tests). The runner lives at `test/conformance/runner.js` and is part of `npm test`.
+* Passes the official MF2 WG syntax conformance suite: 247/247 (114 valid, 133 invalid-input tests). The runner lives at `test/conformance/runner.js` and is part of `npm test`.
 * Full set of editor queries: highlights, locals, folds, indents, injections, tags.
 * Native Node binding + WASM both ship.
-* CI on every push and PR: corpus + conformance on Linux/macOS/Windows, parser/WASM drift checks, `npm pack` dry-run.
-
-Notably **not** in this repo:
-
-* **C NIF glue code** (`erl_nif.h`-facing) — that lives in `localize_mf2_treesitter` because it is Elixir-specific.
-* **JS / LiveView hook** — that lives in `mf2_wasm_editor`.
-* **Editor-specific integrations** (highlight theming, sigil injection rules, LSP config) — those live in `mf2_editor_extensions`.
-* **Elixir-specific injection queries** (e.g. `~M` sigil bodies) — those live in `mf2_editor_extensions` alongside the editor integrations that consume them.
-
-The rule: anything language-neutral goes here. Anything that only makes sense in a specific host language or editor goes there.
-
-## Publishing
-
-**npm** as [`tree-sitter-mf2`](https://www.npmjs.com/package/tree-sitter-mf2):
-
-```bash
-npm version patch   # or minor, major
-npm publish
-```
-
-Package content: grammar sources, generated `parser.c` + headers, compiled `.wasm`, queries. No Node binding is currently shipped (the grammar is consumed via `web-tree-sitter` in the browser and via `parser.c` on the native side).
-
-**GitHub releases / tags** — tag matching the npm version. Downstream consumers that reference this repo by git URL (see below) can pin to a tag.
-
-### Editor-ecosystem registrations
-
-For each editor's ecosystem registry, the registration process is external to this repo — they're listed here so we remember to submit them when the grammar is stable enough to promote:
-
-* [ ] **nvim-treesitter** — PR to [`nvim-treesitter/nvim-treesitter`](https://github.com/nvim-treesitter/nvim-treesitter) adding an entry to `lua/nvim-treesitter/parsers.lua` with `install_info.url` pointing at this repo's GitHub URL.
-* [ ] **Helix** — PR to [`helix-editor/helix`](https://github.com/helix-editor/helix) adding an `mf2` stanza in `languages.toml` referencing this repo.
-* [ ] **Zed** — the Zed extension in `mf2_editor_extensions/zed-mf2/` references this grammar via git URL. Zed's extension registry publishes extensions, not grammars.
-* [ ] **Emacs treesit.el** — no central registry. Users install via `treesit-install-language-grammar` passing this repo's URL.
-* [ ] **tree-sitter-grammars org** — optional future move if the grammar lands in the [`tree-sitter-grammars`](https://github.com/tree-sitter-grammars) umbrella.
 
 ## Regenerating after a grammar edit
 
@@ -110,15 +61,6 @@ Needs [emscripten](https://emscripten.org/) on `PATH` for the WASM build, OR a r
 
 After a regeneration, **both** the source changes AND the regenerated `src/` + `wasm/` artefacts need to be committed. Downstream consumers vendor the checked-in artefacts; they do not regenerate on their own builds.
 
-## Pinning versions across the ecosystem
-
-We use tree-sitter CLI 0.24.x (pinned in `package.json` devDeps). Downstream consumers pin the same major version of:
-
-* `web-tree-sitter` (browser) — the runtime JS that loads the `.wasm`.
-* `libtree-sitter` C runtime (Elixir NIF) — vendored into `localize_mf2_treesitter`'s `c_src/runtime/`.
-
-Mismatches between the CLI version that generated `parser.c` and the runtime version trying to load it cause parser-init failure with an ABI mismatch error. When bumping, bump everywhere at once.
-
 ## Local development
 
 ```bash
@@ -128,12 +70,6 @@ npm install                                   # tree-sitter-cli into node_module
 ```
 
 The test corpus under `test/corpus/` is the same format used by the tree-sitter CLI. Add new tests by appending to the existing `.txt` files (see the format in any of them — `====== name ======` blocks).
-
-## Known gaps
-
-* **`reserved-statement` and `reserved-annotation` productions**: the MF2 spec defines these for forward-compat. Not yet implemented. Rarely seen in practice.
-* **Full Unicode name-start range**: the `name` terminal regex approximates the spec with a practical subset covering BMP letters + common connectors. Expand when someone hits it.
-* **Extra productions for CLDR-specific extensions**: not planned.
 
 ## Licence
 

@@ -8,9 +8,9 @@ DEFS_Debug := \
 	'-DUSING_V8_SHARED=1' \
 	'-DV8_DEPRECATION_WARNINGS=1' \
 	'-D_GLIBCXX_USE_CXX11_ABI=1' \
+	'-D_FILE_OFFSET_BITS=64' \
 	'-D_DARWIN_USE_64_BIT_INODE=1' \
 	'-D_LARGEFILE_SOURCE' \
-	'-D_FILE_OFFSET_BITS=64' \
 	'-DNAPI_CPP_EXCEPTIONS' \
 	'-DBUILDING_NODE_EXTENSION' \
 	'-DDEBUG' \
@@ -45,13 +45,13 @@ CFLAGS_OBJC_Debug :=
 CFLAGS_OBJCC_Debug :=
 
 INCS_Debug := \
-	-I/Users/kip/Library/Caches/node-gyp/23.11.0/include/node \
-	-I/Users/kip/Library/Caches/node-gyp/23.11.0/src \
-	-I/Users/kip/Library/Caches/node-gyp/23.11.0/deps/openssl/config \
-	-I/Users/kip/Library/Caches/node-gyp/23.11.0/deps/openssl/openssl/include \
-	-I/Users/kip/Library/Caches/node-gyp/23.11.0/deps/uv/include \
-	-I/Users/kip/Library/Caches/node-gyp/23.11.0/deps/zlib \
-	-I/Users/kip/Library/Caches/node-gyp/23.11.0/deps/v8/include \
+	-I/var/folders/sp/w2tdl70s1t78bw8kt7mgk1j40000gn/T/prebuildify/node/25.0.0/include/node \
+	-I/var/folders/sp/w2tdl70s1t78bw8kt7mgk1j40000gn/T/prebuildify/node/25.0.0/src \
+	-I/var/folders/sp/w2tdl70s1t78bw8kt7mgk1j40000gn/T/prebuildify/node/25.0.0/deps/openssl/config \
+	-I/var/folders/sp/w2tdl70s1t78bw8kt7mgk1j40000gn/T/prebuildify/node/25.0.0/deps/openssl/openssl/include \
+	-I/var/folders/sp/w2tdl70s1t78bw8kt7mgk1j40000gn/T/prebuildify/node/25.0.0/deps/uv/include \
+	-I/var/folders/sp/w2tdl70s1t78bw8kt7mgk1j40000gn/T/prebuildify/node/25.0.0/deps/zlib \
+	-I/var/folders/sp/w2tdl70s1t78bw8kt7mgk1j40000gn/T/prebuildify/node/25.0.0/deps/v8/include \
 	-I$(srcdir)/src \
 	-I$(srcdir)/node_modules/node-addon-api
 
@@ -61,9 +61,9 @@ DEFS_Release := \
 	'-DUSING_V8_SHARED=1' \
 	'-DV8_DEPRECATION_WARNINGS=1' \
 	'-D_GLIBCXX_USE_CXX11_ABI=1' \
+	'-D_FILE_OFFSET_BITS=64' \
 	'-D_DARWIN_USE_64_BIT_INODE=1' \
 	'-D_LARGEFILE_SOURCE' \
-	'-D_FILE_OFFSET_BITS=64' \
 	'-DNAPI_CPP_EXCEPTIONS' \
 	'-DBUILDING_NODE_EXTENSION'
 
@@ -97,13 +97,13 @@ CFLAGS_OBJC_Release :=
 CFLAGS_OBJCC_Release :=
 
 INCS_Release := \
-	-I/Users/kip/Library/Caches/node-gyp/23.11.0/include/node \
-	-I/Users/kip/Library/Caches/node-gyp/23.11.0/src \
-	-I/Users/kip/Library/Caches/node-gyp/23.11.0/deps/openssl/config \
-	-I/Users/kip/Library/Caches/node-gyp/23.11.0/deps/openssl/openssl/include \
-	-I/Users/kip/Library/Caches/node-gyp/23.11.0/deps/uv/include \
-	-I/Users/kip/Library/Caches/node-gyp/23.11.0/deps/zlib \
-	-I/Users/kip/Library/Caches/node-gyp/23.11.0/deps/v8/include \
+	-I/var/folders/sp/w2tdl70s1t78bw8kt7mgk1j40000gn/T/prebuildify/node/25.0.0/include/node \
+	-I/var/folders/sp/w2tdl70s1t78bw8kt7mgk1j40000gn/T/prebuildify/node/25.0.0/src \
+	-I/var/folders/sp/w2tdl70s1t78bw8kt7mgk1j40000gn/T/prebuildify/node/25.0.0/deps/openssl/config \
+	-I/var/folders/sp/w2tdl70s1t78bw8kt7mgk1j40000gn/T/prebuildify/node/25.0.0/deps/openssl/openssl/include \
+	-I/var/folders/sp/w2tdl70s1t78bw8kt7mgk1j40000gn/T/prebuildify/node/25.0.0/deps/uv/include \
+	-I/var/folders/sp/w2tdl70s1t78bw8kt7mgk1j40000gn/T/prebuildify/node/25.0.0/deps/zlib \
+	-I/var/folders/sp/w2tdl70s1t78bw8kt7mgk1j40000gn/T/prebuildify/node/25.0.0/deps/v8/include \
 	-I$(srcdir)/src \
 	-I$(srcdir)/node_modules/node-addon-api
 

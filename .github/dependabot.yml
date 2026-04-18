@@ -1,0 +1,54 @@
+version: 2
+
+# Automated dependency updates.
+#
+# Two ecosystems matter here:
+#
+#   1. `npm` — runtime deps (node-addon-api, node-gyp-build) and the
+#      pinned tree-sitter-cli / web-tree-sitter / prebuildify devDeps.
+#      A CVE in any of these reaches consumers at install time, so
+#      prompt updates matter.
+#
+#   2. `github-actions` — the workflow files (`.github/workflows/*.yml`)
+#      pin actions like `actions/checkout@v4`. GitHub periodically
+#      cuts new majors with security patches.
+#
+# Grouping strategy: batch minor / patch bumps into a single weekly PR
+# per ecosystem to keep the review load low. Major bumps open their
+# own PR so the breaking-change review gets individual attention.
+# Security-only updates come through regardless of group settings.
+
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Etc/UTC
+    open-pull-requests-limit: 5
+    groups:
+      minor-and-patch:
+        update-types:
+          - minor
+          - patch
+    commit-message:
+      prefix: chore
+      include: scope
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Etc/UTC
+    open-pull-requests-limit: 3
+    groups:
+      actions:
+        update-types:
+          - minor
+          - patch
+    commit-message:
+      prefix: ci
+      include: scope
