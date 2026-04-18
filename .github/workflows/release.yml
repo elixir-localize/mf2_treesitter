@@ -94,14 +94,15 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version: '22'
+          # Node 24 LTS ships with npm 11.x as its bundled version,
+          # which satisfies the npm >= 11.5.1 requirement for Trusted
+          # Publishing. No `npm install -g npm@latest` needed —
+          # that in-place self-upgrade is flaky on hosted runners
+          # (the running npm can't always replace itself cleanly
+          # before finishing the install, leading to half-installed
+          # state errors like "Cannot find module 'promise-retry'").
+          node-version: '24'
           registry-url: 'https://registry.npmjs.org'
-
-      # Trusted Publishing needs npm >= 11.5.1. Ship-with-Node versions
-      # lag behind; upgrade explicitly so this doesn't silently break
-      # when runners roll forward.
-      - name: Upgrade npm
-        run: npm install -g npm@latest
 
       - name: Install dependencies
         run: npm ci
