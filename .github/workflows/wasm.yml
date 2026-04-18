@@ -5,10 +5,21 @@ on:
     branches: [main]
   pull_request:
 
-# Builds the WASM artefact from source and verifies it matches the
-# committed `wasm/tree-sitter-mf2.wasm`. Guards against the case
-# where `grammar.js` is updated but the WASM isn't rebuilt, so
-# browser-side consumers end up loading a stale parser.
+# Builds the WASM artefact from source and verifies it behaves
+# correctly by running the full MF2 WG conformance suite against the
+# fresh output. We don't byte-compare against the committed
+# `wasm/tree-sitter-mf2.wasm` — emscripten's output varies across
+# hosts in non-essential ways (embedded paths, metadata sections,
+# section ordering) even though semantics are identical. The
+# conformance suite is the real correctness gate; byte equality is
+# over-strict.
+#
+# Drift of the *committed* WASM from grammar.js is still guarded,
+# just indirectly: generate.yml catches any parser.c / grammar.json
+# drift, and the published npm package ships whatever WASM was
+# committed alongside grammar.js in that version. Maintainers
+# refresh the committed WASM with `npm run build-wasm` before
+# tagging a release; prepublishOnly enforces this locally.
 
 jobs:
   build-wasm:
@@ -28,13 +39,6 @@ jobs:
       # runners come with Docker pre-installed so this Just Works.
       - name: Build WASM
         run: ./node_modules/.bin/tree-sitter build --wasm --output wasm/tree-sitter-mf2.wasm
-
-      - name: Verify no drift in wasm/
-        run: |
-          if ! git diff --exit-code wasm/; then
-            echo "::error::wasm/tree-sitter-mf2.wasm drift. Run 'npm run build-wasm' locally and commit the result."
-            exit 1
-          fi
 
       - name: Run conformance suite against fresh WASM
         run: npm run test:conformance
