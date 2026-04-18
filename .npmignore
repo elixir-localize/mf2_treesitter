@@ -1,0 +1,24 @@
+# Whitelist lives in package.json's `files` array — anything not
+# listed there is already excluded from the tarball. This file exists
+# as a belt-and-braces backup so a stray local artefact never leaks
+# into a published version.
+
+# Build outputs and local state
+node_modules/
+build/
+.DS_Store
+*.log
+
+# Developer tooling
+.github/
+.gitignore
+CHANGELOG.md
+CONTRIBUTING.md
+scripts/
+test/
+
+# Source-only artefacts we don't publish (consumers get the generated
+# parser.c, not the grammar.json they can regenerate).
+.editorconfig
+.prettierrc
+.eslintrc*

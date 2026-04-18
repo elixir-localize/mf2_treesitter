@@ -70,13 +70,17 @@ Write the source, save the file, run `npm run test:corpus`. It will print the ac
 
 ## Updating the conformance suite
 
-Periodically refresh from upstream:
+Refresh from upstream:
 
 ```bash
-curl -sL https://raw.githubusercontent.com/unicode-org/message-format-wg/main/test/tests/syntax.json > test/conformance/syntax.json
-curl -sL https://raw.githubusercontent.com/unicode-org/message-format-wg/main/test/tests/syntax-errors.json > test/conformance/syntax-errors.json
+# Fetch the latest syntax.json / syntax-errors.json from the MF2 WG repo.
+npm run conformance:update
+
+# Run the suite against the refreshed fixtures.
 npm run test:conformance
 ```
+
+`npm run conformance:update` accepts `--ref <tag|branch|sha>` to pin a specific upstream revision; without it the script tracks `main`. Use `npm run conformance:check` to exit non-zero on drift without writing anything — that's what the scheduled `conformance-drift` workflow runs weekly.
 
 If new tests fail, the grammar needs updating. Do not "fix" the conformance files to match the grammar — the spec is authoritative.
 
@@ -93,19 +97,21 @@ If you must rename:
 
 ## Publishing to npm
 
-Only repo maintainers publish. Flow:
+Only repo maintainers publish. Publishing is driven by the `release.yml` GitHub Actions workflow: pushing a `v*` tag triggers a multi-OS prebuilt-binary matrix build, then a final job that downloads every prebuild, stages them under `prebuilds/`, and runs `npm publish --provenance`. End users on Linux x64/arm64, macOS x64/arm64, or Windows x64 skip node-gyp entirely at install time because `node-gyp-build` finds the matching prebuild.
+
+Flow:
 
 ```bash
 # 1. Verify CI is green on main.
-# 2. Bump version (respect SemVer — tree-shape changes = major).
-npm version patch   # or minor, or major
-# 3. Publish.
-npm publish
-# 4. Tag and push.
+# 2. Bump version in package.json (respect SemVer — tree-shape changes = major).
+npm version patch   # or minor, or major. Creates a commit + git tag.
+# 3. Push commit and tag; the release workflow takes over from here.
 git push --follow-tags
 ```
 
-`npm publish` runs `npm test` and `npm pack` locally first. CI's `npm-pack.yml` job dry-runs the same thing on every PR so surprises are caught before the merge.
+The workflow requires an `NPM_TOKEN` repository secret with publish rights. To run the prebuild matrix without publishing (for validation), trigger `release.yml` via `workflow_dispatch` — it runs the prebuild jobs and skips the publish job.
+
+The `prepublishOnly` npm script also runs `tree-sitter generate` + `npm run build-wasm` + `npm test` as a local safety net for anyone running `npm publish` manually.
 
 ## Licence
 

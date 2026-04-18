@@ -46,13 +46,18 @@
     "test:corpus": "tree-sitter test",
     "test:conformance": "node test/conformance/runner.js",
     "build-wasm": "tree-sitter build --wasm --output wasm/tree-sitter-mf2.wasm",
-    "parse": "tree-sitter parse"
+    "parse": "tree-sitter parse",
+    "conformance:check": "node scripts/update-conformance.mjs --check",
+    "conformance:update": "node scripts/update-conformance.mjs",
+    "prebuild": "prebuildify --napi --strip",
+    "prepublishOnly": "tree-sitter generate && npm run build-wasm && npm test"
   },
   "dependencies": {
     "node-addon-api": "^8.0.0",
     "node-gyp-build": "^4.8.0"
   },
   "devDependencies": {
+    "prebuildify": "^6.0.1",
     "tree-sitter-cli": "^0.24.0",
     "web-tree-sitter": "^0.24.0"
   },

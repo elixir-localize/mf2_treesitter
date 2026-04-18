@@ -1,0 +1,108 @@
+name: release
+
+on:
+  # Trigger on tag push (e.g. `v0.1.0`). The tag drives both the
+  # prebuilt-binary matrix build and the final npm publish.
+  push:
+    tags:
+      - 'v*'
+  # Manually invokable for dry-runs.
+  workflow_dispatch:
+
+# Release pipeline:
+#
+#   1. `prebuild` matrix — build the native `.node` binding on every
+#      OS/arch pair we want to support. Each job uploads its output
+#      to a shared artefact.
+#   2. `publish` — download every prebuilt binary, stage them under
+#      `prebuilds/`, run `npm publish`. `node-gyp-build` at consumer
+#      install time prefers a matching prebuild over compiling from
+#      source, so end users on any of the built platforms skip the
+#      node-gyp step entirely.
+#
+# Requires secrets:
+#   - NPM_TOKEN: npm automation token with publish rights to
+#     `tree-sitter-mf2`.
+
+jobs:
+  prebuild:
+    name: prebuild (${{ matrix.os }}, ${{ matrix.arch }})
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: linux
+            arch: x64
+            runner: ubuntu-latest
+          - os: linux
+            arch: arm64
+            runner: ubuntu-24.04-arm
+          - os: darwin
+            arch: x64
+            runner: macos-13
+          - os: darwin
+            arch: arm64
+            runner: macos-latest
+          - os: win32
+            arch: x64
+            runner: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build prebuild
+        run: npm run prebuild
+
+      - name: Upload prebuild
+        uses: actions/upload-artifact@v4
+        with:
+          name: prebuild-${{ matrix.os }}-${{ matrix.arch }}
+          path: prebuilds/
+          if-no-files-found: error
+
+  publish:
+    name: publish
+    needs: prebuild
+    runs-on: ubuntu-latest
+    # Only publish on tag pushes. `workflow_dispatch` runs the
+    # prebuild matrix for validation but stops short of publishing.
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Download all prebuilds
+        uses: actions/download-artifact@v4
+        with:
+          path: prebuilds-staging
+          pattern: prebuild-*
+          merge-multiple: true
+
+      - name: Stage prebuilds/
+        # All artefacts merged into one tree that mirrors what
+        # `prebuildify` writes locally.
+        run: |
+          mkdir -p prebuilds
+          cp -R prebuilds-staging/* prebuilds/
+          ls -R prebuilds/
+
+      - name: Publish to npm
+        # --provenance attaches a signed build-provenance attestation
+        # visible on the npm package page.
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

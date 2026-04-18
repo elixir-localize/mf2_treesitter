@@ -1,0 +1,40 @@
+name: conformance-drift
+
+on:
+  schedule:
+    # Weekly, Monday 06:00 UTC. Upstream `unicode-org/message-format-wg`
+    # publishes occasional syntax-test revisions; catching drift once a
+    # week is frequent enough without being noisy.
+    - cron: '0 6 * * 1'
+  # Also available on demand.
+  workflow_dispatch:
+  # And on PRs that touch the test fixtures, as a sanity check that
+  # we match upstream when someone bumps the vendored data manually.
+  pull_request:
+    paths:
+      - 'test/conformance/syntax.json'
+      - 'test/conformance/syntax-errors.json'
+      - 'scripts/update-conformance.mjs'
+
+# Fails non-zero if the vendored MF2 WG syntax-conformance fixtures
+# have drifted from upstream. Run locally with:
+#
+#     npm run conformance:update
+#
+# and commit the refreshed JSON files.
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check vendored conformance suite against upstream
+        run: npm run conformance:check
