@@ -1,0 +1,41 @@
+name: npm-pack
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Dry-run of `npm publish` — runs `npm pack` to produce the tarball
+# that would ship to the registry, then verifies that every path
+# listed in package.json's `files` array actually appears in the
+# tarball. Catches the case where someone edits the file list and
+# accidentally excludes something important.
+
+jobs:
+  pack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Pack
+        run: npm pack --dry-run
+
+      - name: Verify key files are included
+        run: |
+          tarball=$(npm pack 2>/dev/null | tail -1)
+          echo "Tarball: $tarball"
+          for path in grammar.js src/parser.c wasm/tree-sitter-mf2.wasm queries/highlights.scm queries/locals.scm queries/folds.scm queries/indents.scm queries/tags.scm bindings/node/binding.cc bindings/node/index.js binding.gyp LICENSE README.md; do
+            if ! tar -tzf "$tarball" | grep -q "package/$path$"; then
+              echo "::error::$path is missing from the packaged tarball"
+              exit 1
+            fi
+          done
+          echo "All key files present in tarball."

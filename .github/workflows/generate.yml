@@ -1,0 +1,35 @@
+name: generate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Regenerates the parser from `grammar.js` and fails if the output
+# differs from what's committed. This catches the footgun where
+# someone edits `grammar.js` but forgets to run `tree-sitter
+# generate` before committing — the committed `src/parser.c`
+# would then silently drift from the grammar definition.
+
+jobs:
+  check-parser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install tree-sitter CLI
+        run: npm ci
+
+      - name: Regenerate parser
+        run: ./node_modules/.bin/tree-sitter generate
+
+      - name: Verify no drift in src/
+        run: |
+          if ! git diff --exit-code src/; then
+            echo "::error::src/ files drift from grammar.js. Run 'tree-sitter generate' locally and commit the result."
+            exit 1
+          fi

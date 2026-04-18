@@ -1,0 +1,105 @@
+================
+quoted pattern
+================
+{{Hello, world!}}
+---
+
+(source_file
+  (message
+    (complex_message
+      (quoted_pattern
+        (text)))))
+
+================
+input declaration
+================
+.input {$count :number}
+{{You have {$count} items.}}
+---
+
+(source_file
+  (message
+    (complex_message
+      (declaration
+        (input_declaration
+          (keyword_input)
+          (variable_expression
+            (variable
+              (name))
+            (function
+              (identifier
+                (name))))))
+      (quoted_pattern
+        (text)
+        (placeholder
+          (expression
+            (variable_expression
+              (variable
+                (name)))))
+        (text)))))
+
+================
+local declaration
+================
+.local $x = {$count}
+{{Count is {$x}}}
+---
+
+(source_file
+  (message
+    (complex_message
+      (declaration
+        (local_declaration
+          (keyword_local)
+          (variable
+            (name))
+          (expression
+            (variable_expression
+              (variable
+                (name))))))
+      (quoted_pattern
+        (text)
+        (placeholder
+          (expression
+            (variable_expression
+              (variable
+                (name)))))))))
+
+================
+match with two variants
+================
+.input {$count :number}
+.match $count
+1 {{one item}}
+* {{other items}}
+---
+
+(source_file
+  (message
+    (complex_message
+      (declaration
+        (input_declaration
+          (keyword_input)
+          (variable_expression
+            (variable
+              (name))
+            (function
+              (identifier
+                (name))))))
+      (matcher
+        (match_statement
+          (keyword_match)
+          (selector
+            (variable
+              (name))))
+        (variant
+          (key
+            (literal
+              (unquoted_literal)))
+          (quoted_pattern
+            (text)))
+        (variant
+          (key
+            (catchall))
+          (quoted_pattern
+            (text)))))))

@@ -1,0 +1,60 @@
+================
+open and close tags
+================
+{#bold}text{/bold}
+---
+
+(source_file
+  (message
+    (simple_message
+      (placeholder
+        (markup
+          (markup_open_or_standalone
+            (identifier (name)))))
+      (text)
+      (placeholder
+        (markup
+          (markup_close
+            (identifier (name))))))))
+
+================
+self-closing tag
+================
+before {#br /}after
+---
+
+(source_file
+  (message
+    (simple_message
+      (text)
+      (placeholder
+        (markup
+          (markup_open_or_standalone
+            (identifier (name))
+            (self_closing))))
+      (text))))
+
+================
+markup with options
+================
+Click {#link href=|/home|}here{/link}
+---
+
+(source_file
+  (message
+    (simple_message
+      (text)
+      (placeholder
+        (markup
+          (markup_open_or_standalone
+            (identifier (name))
+            (option
+              (identifier (name))
+              (literal
+                (quoted_literal
+                  (quoted_char)))))))
+      (text)
+      (placeholder
+        (markup
+          (markup_close
+            (identifier (name))))))))

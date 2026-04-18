@@ -1,0 +1,145 @@
+================
+empty message
+================
+
+---
+
+(source_file)
+
+================
+plain text
+================
+Hello, world!
+---
+
+(source_file
+  (message
+    (simple_message
+      (text))))
+
+================
+single variable
+================
+Hello {$name}!
+---
+
+(source_file
+  (message
+    (simple_message
+      (text)
+      (placeholder
+        (expression
+          (variable_expression
+            (variable
+              (name)))))
+      (text))))
+
+================
+variable with function
+================
+{$count :number}
+---
+
+(source_file
+  (message
+    (simple_message
+      (placeholder
+        (expression
+          (variable_expression
+            (variable
+              (name))
+            (function
+              (identifier
+                (name)))))))))
+
+================
+function with option
+================
+{$date :datetime dateStyle=long}
+---
+
+(source_file
+  (message
+    (simple_message
+      (placeholder
+        (expression
+          (variable_expression
+            (variable
+              (name))
+            (function
+              (identifier
+                (name))
+              (option
+                (identifier (name))
+                (literal
+                  (unquoted_literal
+                    (name)))))))))))
+
+================
+attribute
+================
+{$x @translate}
+---
+
+(source_file
+  (message
+    (simple_message
+      (placeholder
+        (expression
+          (variable_expression
+            (variable
+              (name))
+            (attribute
+              (identifier
+                (name)))))))))
+
+================
+quoted literal
+================
+{|hello world|}
+---
+
+(source_file
+  (message
+    (simple_message
+      (placeholder
+        (expression
+          (literal_expression
+            (literal
+              (quoted_literal
+                (quoted_char)))))))))
+
+================
+number literals
+================
+{42} and {3.14}
+---
+
+(source_file
+  (message
+    (simple_message
+      (placeholder
+        (expression
+          (literal_expression
+            (literal
+              (unquoted_literal)))))
+      (text)
+      (placeholder
+        (expression
+          (literal_expression
+            (literal
+              (unquoted_literal))))))))
+
+================
+escapes in text
+================
+Hello \{world\}
+---
+
+(source_file
+  (message
+    (simple_message
+      (text)
+      (escape)
+      (text)
+      (escape))))

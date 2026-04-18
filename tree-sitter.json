@@ -1,0 +1,30 @@
+{
+  "grammars": [
+    {
+      "name": "mf2",
+      "camelcase": "Mf2",
+      "scope": "source.mf2",
+      "path": ".",
+      "file-types": [
+        "mf2"
+      ],
+      "injection-regex": "mf2|messageformat"
+    }
+  ],
+  "metadata": {
+    "version": "0.1.0",
+    "license": "Apache-2.0",
+    "description": "tree-sitter grammar for ICU MessageFormat 2.0 (MF2) messages",
+    "links": {
+      "repository": "https://github.com/elixir-localize/localize.git"
+    }
+  },
+  "bindings": {
+    "c": true,
+    "go": true,
+    "node": true,
+    "python": true,
+    "rust": true,
+    "swift": true
+  }
+}

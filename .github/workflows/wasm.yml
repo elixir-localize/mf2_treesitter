@@ -1,0 +1,40 @@
+name: wasm
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Builds the WASM artefact from source and verifies it matches the
+# committed `wasm/tree-sitter-mf2.wasm`. Guards against the case
+# where `grammar.js` is updated but the WASM isn't rebuilt, so
+# browser-side consumers end up loading a stale parser.
+
+jobs:
+  build-wasm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install tree-sitter CLI
+        run: npm ci
+
+      # tree-sitter build --wasm uses emscripten. The tree-sitter CLI
+      # can run emscripten inside Docker when it's not on PATH; GitHub
+      # runners come with Docker pre-installed so this Just Works.
+      - name: Build WASM
+        run: ./node_modules/.bin/tree-sitter build --wasm --output wasm/tree-sitter-mf2.wasm
+
+      - name: Verify no drift in wasm/
+        run: |
+          if ! git diff --exit-code wasm/; then
+            echo "::error::wasm/tree-sitter-mf2.wasm drift. Run 'npm run build-wasm' locally and commit the result."
+            exit 1
+          fi
+
+      - name: Run conformance suite against fresh WASM
+        run: npm run test:conformance
