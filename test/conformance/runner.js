@@ -25,8 +25,12 @@ const fs = require('fs');
 const path = require('path');
 
 // web-tree-sitter lives at the top-level node_modules (same version
-// as the tree-sitter CLI we pinned).
-const Parser = require('web-tree-sitter');
+// as the tree-sitter CLI we pinned). The 0.25.x API exports the
+// `Parser` and `Language` classes as named exports; older 0.24.x
+// exposed them through a single default export (with
+// `Parser.Language.load`). Use destructuring so we fail fast if
+// either name is missing.
+const { Parser, Language } = require('web-tree-sitter');
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
 const WASM_PATH = path.join(REPO_ROOT, 'wasm', 'tree-sitter-mf2.wasm');
@@ -39,7 +43,7 @@ function loadJson(p) {
 
 async function main() {
   await Parser.init();
-  const lang = await Parser.Language.load(WASM_PATH);
+  const lang = await Language.load(WASM_PATH);
   const parser = new Parser();
   parser.setLanguage(lang);
 
