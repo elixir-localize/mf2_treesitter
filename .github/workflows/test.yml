@@ -25,7 +25,12 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          # Node 22 bundles npm 10.9+/node-gyp 10.2+, which recognises
+          # the VS 2026 install on the windows-latest runner image.
+          # Node 20 ships node-gyp 10.1, which fails to detect VS 18
+          # ("unknown version 'undefined' found at ...\Microsoft Visual
+          # Studio\18\Enterprise") and breaks `npm ci` on Windows.
+          node-version: '22'
 
       - name: Install dependencies
         run: npm ci

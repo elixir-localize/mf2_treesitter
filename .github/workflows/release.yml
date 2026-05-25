@@ -59,7 +59,13 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          # Node 22 bundles npm 10.9+/node-gyp 10.2+, which recognises
+          # the VS 2026 install on the windows-latest runner image.
+          # Node 20 ships node-gyp 10.1, which fails VS detection on
+          # that image and breaks the Windows prebuild. N-API binary
+          # compatibility means a Node 22-built `.node` still loads
+          # for consumers on Node 18/20/21+.
+          node-version: '22'
 
       - name: Install dependencies
         run: npm ci
