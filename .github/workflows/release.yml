@@ -47,7 +47,15 @@ jobs:
             runner: macos-latest
           - os: win32
             arch: x64
-            runner: windows-latest
+            # windows-2022 instead of windows-latest: windows-latest
+            # now routes to windows-2025-vs2026 (VS 2026), and
+            # node-gyp's PowerShell VS detection trips
+            # ERR_CHILD_PROCESS_STDIO_MAXBUFFER on that image, then
+            # falls back to a directory scan that reports "unknown
+            # version 'undefined'" at ...\Visual Studio\18\Enterprise.
+            # Revisit once node-gyp ships a fix for the vswhere
+            # buffer cap.
+            runner: windows-2022
         # darwin x64 (Intel Mac) was in the matrix but GitHub's
         # macos-13 runner pool is so constrained that jobs sit
         # queued for 24h+. Apple has been pushing off Intel since

@@ -18,7 +18,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        # windows-2022 instead of windows-latest: windows-latest now
+        # routes to windows-2025-vs2026 (VS 2026), and node-gyp's
+        # PowerShell VS detection trips ERR_CHILD_PROCESS_STDIO_MAXBUFFER
+        # on that image, falling back to a directory scan that reports
+        # "unknown version 'undefined'" at ...\Visual Studio\18\Enterprise.
+        # Revisit once node-gyp ships a fix for the vswhere buffer cap.
+        os: [ubuntu-latest, macos-latest, windows-2022]
 
     steps:
       - uses: actions/checkout@v6
