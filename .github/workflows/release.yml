@@ -63,7 +63,7 @@ jobs:
         # is negligible. Intel users fall back to node-gyp-build
         # compiling at install time, same as any unlisted platform.
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-node@v6
         with:
@@ -104,7 +104,7 @@ jobs:
       id-token: write
       contents: read
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-node@v6
         with:
