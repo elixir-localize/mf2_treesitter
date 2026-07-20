@@ -65,7 +65,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           # Node 22 bundles npm 10.9+/node-gyp 10.2+, which recognises
           # the VS 2026 install on the windows-latest runner image.
@@ -106,7 +106,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           # Node 24 LTS ships with npm 11.x as its bundled version,
           # which satisfies the npm >= 11.5.1 requirement for Trusted
